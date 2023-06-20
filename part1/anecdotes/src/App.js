@@ -21,7 +21,6 @@ const App = () => {
 
   function setRandomAnecdote() {
     let index = Math.floor(Math.random() * anecdotes.length);
-    console.log(index);
     setSelected(index);
   }
 
