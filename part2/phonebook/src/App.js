@@ -12,6 +12,7 @@ const App = () => {
   ]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
+  const [filteredList, setFilteredList] = useState([]);
 
   function addNumber(e) {
     e.preventDefault();
@@ -29,21 +30,19 @@ const App = () => {
     }
   }
 
-  function handleChange(event) {
-    console.log(event);
-    // const name = event.target.name;
-    // const number = event.target.number;
-    // setNewName(name);
-    // setNewNumber(number);
+  function filterList(keyword) {
+    let copyPersons = persons;
+    let newFilteredList = copyPersons.filter((person) =>
+      person.name.toLowerCase().includes(keyword.toLowerCase())
+    );
+    setFilteredList(newFilteredList);
   }
-
-  function filterList() {}
 
   return (
     <div>
       <h2>Phonebook</h2>
 
-      <Filter handleChange={() => filterList()} />
+      <Filter filterList={filterList} />
 
       <h3>Add a new</h3>
 
@@ -57,7 +56,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons persons={persons} />
+      <Persons persons={persons} filteredList={filteredList} />
     </div>
   );
 };

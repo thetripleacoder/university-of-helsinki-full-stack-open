@@ -1,5 +1,5 @@
-const Persons = ({ persons }) => {
-  return persons.map((person) => {
+const Persons = ({ persons, filteredList }) => {
+  return (filteredList.length ? filteredList : persons).map((person) => {
     return (
       <p key={person.id}>
         <span>{person.name}</span>
