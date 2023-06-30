@@ -4,12 +4,14 @@ import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
 import notesService from './services/persons';
+import Notification from './components/Notification';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filteredList, setFilteredList] = useState([]);
+  const [notificationMessage, setNotificationMessage] = useState(null);
 
   useEffect(() => {
     notesService.getAll().then((response) => {
@@ -32,12 +34,32 @@ const App = () => {
           `${updatedPersonData.name} is already added to phonebook, replace the old number with a new one?`
         )
       ) {
-        notesService.update(updatedPersonData.id, updatedPersonData);
-        let copyPersons = persons;
-        copyPersons[personIndex] = updatedPersonData;
-        setPersons(copyPersons);
-        setNewName('');
-        setNewNumber('');
+        notesService
+          .update(updatedPersonData.id, updatedPersonData)
+          .then((response) => {
+            console.log(response);
+            if (response) {
+              let copyPersons = persons;
+              copyPersons[personIndex] = updatedPersonData;
+              setPersons(copyPersons);
+              setNewName('');
+              setNewNumber('');
+              setNotificationMessage(
+                `${updatedPersonData.name}'s number has been updated`
+              );
+              setTimeout(() => {
+                setNotificationMessage(null);
+              }, 3000);
+            }
+          })
+          .catch((error) => {
+            setNotificationMessage(
+              `Information of ${updatedPersonData.name} has already been removed from server`
+            );
+            setTimeout(() => {
+              setNotificationMessage(null);
+            }, 3000);
+          });
       }
     } else {
       let newPerson = {
@@ -47,8 +69,13 @@ const App = () => {
       };
       notesService.create(newPerson);
       setPersons(persons.concat(newPerson));
+
       setNewName('');
       setNewNumber('');
+      setNotificationMessage(`Added ${newPerson.name}`);
+      setTimeout(() => {
+        setNotificationMessage(null);
+      }, 3000);
     }
   }
 
@@ -62,16 +89,27 @@ const App = () => {
 
   function deleteNumber(personData) {
     if (window.confirm(`Delete ${personData.name} ?`)) {
-      notesService.deleteNumber(personData.id);
-      let copyPersons = persons;
-      copyPersons = copyPersons.filter((person) => person.id !== personData.id);
-      setPersons(copyPersons);
+      notesService
+        .deleteNumber(personData.id)
+        .then((response) => {
+          if (response) {
+            let copyPersons = persons;
+            copyPersons = copyPersons.filter(
+              (person) => person.id !== personData.id
+            );
+            setPersons(copyPersons);
+          }
+        })
+        .catch((error) => {
+          console.log('fail');
+        });
     }
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notificationMessage} />
 
       <Filter filterList={filterList} />
 
